@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <title>Простой чат</title>
+  </head>
+  <body>
+  <div class="container">
+    <h1>Простой чат</h1>
+    <div class="row mb-2">
+      <div class="col-md-6">
+        <form method="POST" action="/" id="chat_form">
+          <div class="mb-3">
+            <label for="name" class="form-label">Имя</label>
+            <input type="text" class="form-control" name="name" id="chat_name" aria-describedby="emailHelp">
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Текст</label>
+            <textarea class="form-control" placeholder="Leave a comment here" id="chat_msg" name="msg"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+      </div>
+      <div class="col-md-6">
+          <b>История чата</b>
+          <div id="chat_list"></div>
+      </div>
+    </div>
+
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  $(function(){
+    var socket = io.connect();
+    //console.log('socket');
+    var $form = $('#chat_form');
+    var $name = $('#chat_name');
+    var $msg = $('#chat_msg');
+    var $list = $('#chat_list');
+
+    $form.submit(function(e){
+      //отменяем стандартное поведение формы. не будет перезагрузки
+      e.preventDefault();
+      //создаем дейтсиве с произврольным название и передаем в него параметр
+      socket.emit('submit form', {
+          name:$name.val(),
+          msg:$msg.val()
+      });
+      //очищаем текст
+      $msg.val('');
+    });
+
+    socket.on('add msg', function(data){
+      console.log(data);
+      $list.append('<div><b>' + data.name + '</b> <p>' + data.msg + '</p></div>');
+    })
+  })
+</script>
+</body>
+
+</html>
